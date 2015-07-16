@@ -7,7 +7,7 @@ Parse.Cloud.define("hello", function(request, response) {
 });
 
 Parse.Cloud.define("isFieldValueInUse", function(request, response){
-    //Pre: classname, key, value
+    //Pre: className, key, value
     //Post: true if in use, false if not in use
     //Purpose: Returns if field value is currently in use (ex. username already being used)
 
@@ -48,15 +48,36 @@ Parse.Cloud.define("postCommentAsOrganizationOnAnnouncement", function(request, 
 
 });
 
-Parse.Cloud.define("", function(request, response){
-    //Pre:
-    //Post:
-    //Purpose:
+Parse.Cloud.define("getClubsFollowedByUser", function(request, response){
+    //Pre: user
+    //Post: array of clubs that the user follows
+    //Purpose: to display user's followed club list (used in userProfile view)
 
 });
 
-Parse.Cloud.define("", function(request, response){
-    //Pre:
+Parse.Cloud.define("updateUserProfilePhoto", function(request, response){
+    //Pre: user, photo
+    //Post: true if photo was successfully saved, false if failed
+    //Purpose: update the profile photo of the user
+
+});
+
+Parse.Cloud.define("updateUserCoverPhoto", function(request, response){
+    //Pre: user, photo
+    //Post: true if photo was successfully saved, false if failed
+    //Purpose: update the cover photo of the user
+
+});
+
+Parse.Cloud.define("updateUserDescription", function(request, response){
+    //Pre: user, description
+    //Post: true if description was successfully saved, false if failed
+    //Purpose: update the description of the user
+
+});
+
+Parse.Cloud.define("getChildrenClubsOfOrganization", function(request, response){
+    //Pre: Organization
     //Post:
     //Purpose:
 
