@@ -132,27 +132,21 @@ Parse.Cloud.define("removeAdminFromOrganization", function(request, response){
 
 });
 
-Parse.Cloud.define("", function(request, response){
-    //Pre:
-    //Post:
-    //Purpose:
+Parse.Cloud.define("createNewOrganization", function(request, response){
+    //Pre: parentOrganizationObjectId, organizationName, organizationHandle, organizationDescription, organizationType, adminArray
+    //Post: true if successfully created club, false is failed.
+    //Purpose: to create a new organization which is a child to another organization that the user is an admin of
 
 });
 
-Parse.Cloud.define("", function(request, response){
-    //Pre:
-    //Post:
-    //Purpose:
-
+Parse.Cloud.define("updateOrganizationFields", function(request, response) {
+    //Pre: organizationObjectId, organizationName, organizationDescription, organizationType, adminArray
+    //Post: true if successfully modified organization's attributes, false if failed
+    //Purpose: to update an organization's information
 });
 
-Parse.Cloud.define("", function(request, response){
-    //Pre:
-    //Post:
-    //Purpose:
-
-});
-
-Parse.Cloud.afterSave("Post", function(request) {
-
+Parse.Cloud.define("changeOrganizationType", function(request, response) {
+    //Pre: organizationObjectId, oldType, newType
+    //Post: true if successfully changed, false if failed
+    //Purpose: to change organizationType to public from private or vice versa
 });
