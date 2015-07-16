@@ -83,9 +83,76 @@ Parse.Cloud.define("getPostsOfOrganizationInRange", function(request, response){
 
 });
 
-Parse.Cloud.define("updateDescription", function(request, response){
-    //Pre: Organization
+Parse.Cloud.define("getChildOrganisationsInRange", function(request, response){
+    //Pre: Organization, startIndex, endIndex
+    //Post: array of children (latest first)
+    //Purpose: to show array of posts (latest first) for use in clubProfileView
+
+});
+
+Parse.Cloud.define("checkIfUserIsAdminOfOrganisation", function(request, response){
+    //Pre: Organization, user
+    //Post: true if admin, false if not
+    //Purpose: find out if user is admin of an organisation
+
+});
+
+Parse.Cloud.define("updateFollowStateForUser", function(request, response){
+    //Pre: isFollowing, user, organization
+    //Post: true if it was successful, false if not successful; isFollowing
+    //Purpose: allow user to follow / unfollow organizations
+
+});
+
+Parse.Cloud.define("getFollowersAndFollowRequestsForOrganizationInRange", function(request, response){
+    //Pre: organization, startIndex, endIndex
+    //Post: array of followers
+    //Purpose: get followers in a certain range for an organization
+
+});
+
+Parse.Cloud.define("getAdminsForOrganizationInRange", function(request, response){
+    //Pre: Organization, startIndex, endIndex
+    //Post: array of admins
+    //Purpose: get admins in a certain range for an organization
+
+});
+
+Parse.Cloud.define("", function(request, response){
+    //Pre:
     //Post:
     //Purpose:
+
+});
+
+Parse.Cloud.define("", function(request, response){
+    //Pre:
+    //Post:
+    //Purpose:
+
+});
+
+Parse.Cloud.define("", function(request, response){
+    //Pre:
+    //Post:
+    //Purpose:
+
+});
+
+Parse.Cloud.define("", function(request, response){
+    //Pre:
+    //Post:
+    //Purpose:
+
+});
+
+Parse.Cloud.define("", function(request, response){
+    //Pre:
+    //Post:
+    //Purpose:
+
+});
+
+Parse.Cloud.afterSave("Post", function(request) {
 
 });
