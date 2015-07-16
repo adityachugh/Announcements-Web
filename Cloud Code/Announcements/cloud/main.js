@@ -76,7 +76,14 @@ Parse.Cloud.define("updateUserDescription", function(request, response){
 
 });
 
-Parse.Cloud.define("getChildrenClubsOfOrganization", function(request, response){
+Parse.Cloud.define("getPostsOfOrganizationInRange", function(request, response){
+    //Pre: Organization, startIndex, endIndex
+    //Post: array of posts (latest first)
+    //Purpose: to show array of posts (latest first) for use in clubProfileView
+
+});
+
+Parse.Cloud.define("updateDescription", function(request, response){
     //Pre: Organization
     //Post:
     //Purpose:
