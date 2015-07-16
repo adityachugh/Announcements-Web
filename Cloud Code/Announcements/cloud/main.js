@@ -42,7 +42,7 @@ Parse.Cloud.define("postCommentAsUserOnAnnouncement", function(request, response
 });
 
 Parse.Cloud.define("postCommentAsOrganizationOnAnnouncement", function(request, response){
-    //Pre: commentText, organisation, time, post
+    //Pre: commentText, organization, time, post
     //Post: true if comment was posted, false if post failed
     //Purpose: post comment on announcement (used in announcementDetail view)
 
@@ -83,17 +83,17 @@ Parse.Cloud.define("getPostsOfOrganizationInRange", function(request, response){
 
 });
 
-Parse.Cloud.define("getChildOrganisationsInRange", function(request, response){
+Parse.Cloud.define("getChildOrganizationsInRange", function(request, response){
     //Pre: Organization, startIndex, endIndex
     //Post: array of children (latest first)
     //Purpose: to show array of posts (latest first) for use in clubProfileView
 
 });
 
-Parse.Cloud.define("checkIfUserIsAdminOfOrganisation", function(request, response){
+Parse.Cloud.define("checkIfUserIsAdminOfOrganization", function(request, response){
     //Pre: Organization, user
     //Post: true if admin, false if not
-    //Purpose: find out if user is admin of an organisation
+    //Purpose: find out if user is admin of an organization
 
 });
 
@@ -149,4 +149,10 @@ Parse.Cloud.define("changeOrganizationType", function(request, response) {
     //Pre: organizationObjectId, oldType, newType
     //Post: true if successfully changed, false if failed
     //Purpose: to change organizationType to public from private or vice versa
+});
+
+Parse.Cloud.define("privateOrganizationAccessCodeEntered", function(request, response) {
+  //Pre: user, organizationObjectId, organizationType, accessCode, enteredAccessCode
+  //Post: true if user inputs correct access code; false if incorrect code
+  //Purpose: to determine whether user has entered the correct access code to join a private organization - sends follow request
 });
