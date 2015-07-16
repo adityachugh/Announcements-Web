@@ -118,17 +118,17 @@ Parse.Cloud.define("getAdminsForOrganizationInRange", function(request, response
 
 });
 
-Parse.Cloud.define("", function(request, response){
-    //Pre:
-    //Post:
-    //Purpose:
+Parse.Cloud.define("addAdminToOrganization", function(request, response){
+    //Pre: Organzation, selectedUserToBeAdmin, adminRoleAssigned
+    //Post: true if succesfully added as admin, false if failed.
+    //Purpose: to add new admins to an organization
 
 });
 
-Parse.Cloud.define("", function(request, response){
-    //Pre:
-    //Post:
-    //Purpose:
+Parse.Cloud.define("removeAdminFromOrganization", function(request, response){
+    //Pre: Organization, selectedAdminToRemove
+    //Post: true if succesfully removed, false is failed.
+    //Purpose: to remove admins from an organization
 
 });
 
