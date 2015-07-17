@@ -18,6 +18,8 @@ Parse.Cloud.define("getAllChildOrganizations", function(request, response){
     //Post: array of childOrganizations
     //Purpose: get all child organizations (ex. get schools for a school board)
 
+    //ALSO used in Discover view - will show all 'clubs' based on selected school
+
 });
 
 Parse.Cloud.define("getRangeOfAnnouncementsForDay", function(request, response){
@@ -166,3 +168,4 @@ Parse.Cloud.define("getRequestedPrivateOrganizationUsers", function(request, res
 
   //updateFollowStateForUser if admin accepts request
 });
+
