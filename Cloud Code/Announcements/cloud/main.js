@@ -55,6 +55,8 @@ Parse.Cloud.define("getClubsFollowedByUser", function(request, response){
 
 });
 
+//NEXT 3: make separate functions for updating club photo/cover/description, or keep generic?
+
 Parse.Cloud.define("updateUserProfilePhoto", function(request, response){
     //Pre: user, photo
     //Post: true if photo was successfully saved, false if failed
@@ -93,7 +95,7 @@ Parse.Cloud.define("getChildOrganizationsInRange", function(request, response){
 Parse.Cloud.define("checkIfUserIsAdminOfOrganization", function(request, response){
     //Pre: Organization, user
     //Post: true if admin, false if not
-    //Purpose: find out if user is admin of an organization
+    //Purpose: find out if user is admin of an organization - sees different screens
 
 });
 
@@ -155,4 +157,12 @@ Parse.Cloud.define("privateOrganizationAccessCodeEntered", function(request, res
   //Pre: user, organizationObjectId, organizationType, accessCode, enteredAccessCode
   //Post: true if user inputs correct access code; false if incorrect code
   //Purpose: to determine whether user has entered the correct access code to join a private organization - sends follow request
+});
+
+Parse.Cloud.define("getRequestedPrivateOrganizationUsers", function(request, response) {
+  //Pre: Organization, startIndex, endIndex [only load max 10-15 at once]
+  //Post: Array of requested users
+  //Purpose: display requested users as a 'pending' list for private organization admins (can accept or reject)
+
+  //updateFollowStateForUser if admin accepts request
 });
