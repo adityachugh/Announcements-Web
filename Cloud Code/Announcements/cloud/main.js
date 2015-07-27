@@ -6,6 +6,10 @@ Parse.Cloud.define("hello", function(request, response) {
   response.success("Hello world!");
 });
 
+Parse.Cloud.define("testWithParameters", function(request, response) {
+  response.success("Hello " + request.params.name + ". You are " + request.params.age + " years old!");
+});
+
 Parse.Cloud.define("isFieldValueInUse", function(request, response){
     //Pre: className, key, value
     //Post: true if in use, false if not in use
@@ -169,3 +173,14 @@ Parse.Cloud.define("getRequestedPrivateOrganizationUsers", function(request, res
   //updateFollowStateForUser if admin accepts request
 });
 
+Parse.Cloud.define("deletePost", function(request, response) {
+  //Pre: post, user
+  //Post: true if deleted, false if not
+  //Purpose: Delete a post, and all associated comments
+});
+
+Parse.Cloud.define("deleteComment", function(request, response) {
+  //Pre: comment, user
+  //Post: true if deleted, false if not
+  //Purpose: Delete a comment
+});
