@@ -2,12 +2,16 @@
 // Use Parse.Cloud.define to define as many cloud functions as you want.
 // For example:
 
+//Class name constants
 const USER = 'User';
 const _USER = '_User';
 const ORGANIZATION = 'Organization';
+const POST = 'Post';
 
-var Organization = Parse.Object.extend("Organization");
+//Parse objects
+var Organization = Parse.Object.extend(ORGANIZATION);
 
+var moment = require('moment');
 
 Parse.Cloud.define("hello", function(request, response) {
   response.success("Hello world!");
@@ -16,7 +20,6 @@ Parse.Cloud.define("hello", function(request, response) {
 Parse.Cloud.define("testWithParameters", function(request, response) {
   response.success("Hello " + request.params.name + ". You are " + request.params.age + " years old!");
 });
-
 
 Parse.Cloud.define("isFieldValueInUse", function(request, response){
     //TESTED
@@ -27,23 +30,25 @@ Parse.Cloud.define("isFieldValueInUse", function(request, response){
 
     Parse.Cloud.useMasterKey();
 
+    //Parameters
     var className = request.params.className;
     var key = request.params.key;
     var value = request.params.value;
 
+    //Setup query
     var query;
     if (className == USER || className == _USER) {
         query = new Parse.Query(Parse.User);
     } else {
         query = new Parse.Query(className);
     }
-
     query.equalTo(key, value);
     query.find({
         success: function(results) {
-            if (results.length < 1) {
+
+            if (results.length < 1) { //Field value is not in use
                 response.success(false);
-            } else {
+            } else { //Field value is in use
                 response.success(true)
             }
         },
@@ -55,7 +60,7 @@ Parse.Cloud.define("isFieldValueInUse", function(request, response){
 
 Parse.Cloud.define("getAllChildOrganizations", function(request, response){
 
-    //NOT TESTED
+    //TESTED
 
     //Pre: parentOrganizationObjectId (will be null for top level organization)
     //Post: array of childOrganizations
@@ -64,8 +69,11 @@ Parse.Cloud.define("getAllChildOrganizations", function(request, response){
     //ALSO used in Discover view - will show all 'clubs' based on selected school
 
     Parse.Cloud.useMasterKey();
+
+    //Create parentOrganization
     var parentOrganization = new Organization();
     parentOrganization.id = request.params.parentOrganizationObjectId;
+
     var query = new Parse.Query(ORGANIZATION);
     query.equalTo('Parent', parentOrganization);
     query.find({
@@ -74,48 +82,64 @@ Parse.Cloud.define("getAllChildOrganizations", function(request, response){
         },
         error: function(error) {
             response.error(error);
-
         }
     });
 
 });
 
-Parse.Cloud.define("getRangeOfAnnouncementsForDay", function(request, response){
-    //NOT TESTED
+Parse.Cloud.define("getRangeOfPostsForDay", function(request, response){
+    //TESTED
 
-    //Pre: startIndex, endIndex, date
-    //Post: array of announcements for user
-    //Purpose: get announcements for a certain range & day (used in today view) (ex. get announcements 0-9 for today)
+    //Pre: startIndex, numberOfPosts, date
+    //Post: array of posts for user
+    //Purpose: get posts for a certain range & day (used in today view) (ex. get posts 0-9 for today)
 
     Parse.Cloud.useMasterKey();
+
+    var date = request.params.date;
+    var startIndex = request.params.startIndex;
+    var numberOfPosts = request.params.numberOfPosts;
+
+    var query = new Parse.Query(POST);
+    query.lessThan('postEndDate', date);
+    query.greaterThan('postStartDate', date);
+    query.skip(startIndex);
+    query.limit(numberOfPosts);
+    query.find({
+        success: function(results){
+            response.success(results);
+        }, error: function(error) {
+            response.error(error);
+        }
+    });
 });
 
-Parse.Cloud.define("getRangeOfCommentsForAnnouncement", function(request, response){
+Parse.Cloud.define("getRangeOfCommentsForPost", function(request, response){
     //NOT TESTED
 
     //Pre: startIndex, endIndex, post
     //Post: return array of comments for a post
-    //Purpose: get comments for a certain range & post (loads latest first (see facebook commenting system)) (used in announcementDetail view) (ex. get comments 0-9 for an post)
+    //Purpose: get comments for a certain range & post (loads latest first (see facebook commenting system)) (used in postDetail view) (ex. get comments 0-9 for an post)
 
     Parse.Cloud.useMasterKey();
 });
 
-Parse.Cloud.define("postCommentAsUserOnAnnouncement", function(request, response){
+Parse.Cloud.define("postCommentAsUserOnPost", function(request, response){
     //NOT TESTED
 
     //Pre: commentText, user, time, post
     //Post: true if comment was posted, false if post failed
-    //Purpose: user posts comment on announcement (used in announcementDetail view)
+    //Purpose: user posts comment on post (used in postDetail view)
 
     Parse.Cloud.useMasterKey();
 });
 
-Parse.Cloud.define("postCommentAsOrganizationOnAnnouncement", function(request, response){
+Parse.Cloud.define("postCommentAsOrganizationOnPost", function(request, response){
     //NOT TESTED
 
     //Pre: commentText, organization, time, post
     //Post: true if comment was posted, false if post failed
-    //Purpose: post comment on announcement (used in announcementDetail view)
+    //Purpose: post comment on post (used in postDetail view)
 
     Parse.Cloud.useMasterKey();
 });
