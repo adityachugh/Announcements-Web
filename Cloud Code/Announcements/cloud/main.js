@@ -6,6 +6,8 @@ const USER = 'User';
 const _USER = '_User';
 const ORGANIZATION = 'Organization';
 
+var Organization = Parse.Object.extend("Organization");
+
 
 Parse.Cloud.define("hello", function(request, response) {
   response.success("Hello world!");
@@ -55,23 +57,24 @@ Parse.Cloud.define("getAllChildOrganizations", function(request, response){
 
     //NOT TESTED
 
-    //Pre: parentOrganization (will be null for top level organization)
+    //Pre: parentOrganizationObjectId (will be null for top level organization)
     //Post: array of childOrganizations
     //Purpose: get all child organizations (ex. get schools for a school board)
 
     //ALSO used in Discover view - will show all 'clubs' based on selected school
 
     Parse.Cloud.useMasterKey();
-
-    var parentOrganisation = request.params.parentOrganization;
-    var query = Parse.Query(ORGANIZATION);
-    query.equalTo('Parent', parentOrganisation);
+    var parentOrganization = new Organization();
+    parentOrganization.id = request.params.parentOrganizationObjectId;
+    var query = new Parse.Query(ORGANIZATION);
+    query.equalTo('Parent', parentOrganization);
     query.find({
         success: function(results) {
             response.success(results);
         },
         error: function(error) {
             response.error(error);
+
         }
     });
 
