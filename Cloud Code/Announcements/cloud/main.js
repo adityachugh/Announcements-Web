@@ -11,6 +11,15 @@ const COMMENTS = 'Comments';
 //Parse objects
 var Organization = Parse.Object.extend(ORGANIZATION);
 var Post = Parse.Object.extend(POST);
+var Comments = Parse.Object.extend(COMMENTS);
+
+var checkIfUserIsLoggedIn = function(request, response, code) {
+    if (!request.user) {
+        response.error("User not logged in!");
+    } else {
+        code(request, response);
+    }
+};
 
 Parse.Cloud.define("hello", function(request, response) {
   response.success("Hello world!");
@@ -89,10 +98,7 @@ Parse.Cloud.define("getRangeOfPostsForDay", function(request, response){
     //Post: array of posts for user
     //Purpose: get posts for a certain range & day (used in today view) (ex. get posts 0-9 for today)
 
-    if (!request.user) { //Check if user is logged in
-        response.error("User not logged in!");
-    } else {
-
+    checkIfUserIsLoggedIn(request, response, function(request, response) {
         var followersQuery = new Parse.Query(FOLLOWERS);
         followersQuery.equalTo('User', request.user);
         //followersQuery.find({
@@ -121,20 +127,17 @@ Parse.Cloud.define("getRangeOfPostsForDay", function(request, response){
                 response.error(error);
             }
         });
-    }
+    });
 });
 
 Parse.Cloud.define("getRangeOfCommentsForPost", function(request, response){
-    //NOT TESTED
+    //TESTED
 
     //Pre: startIndex, numberOfPosts, postObjectId
     //Post: return array of comments for a post
     //Purpose: get comments for a certain range & post (loads latest first (see facebook commenting system)) (used in postDetail view) (ex. get comments 0-9 for an post)
 
-    if (!request.user) {
-        response.error('User not logged in!');
-    } else {
-
+    checkIfUserIsLoggedIn(request, response, function(request, response) {
         var postObjectId = request.params.postObjectId;
         var startIndex = request.params.startIndex;
         var numberOfPosts = request.params.numberOfPosts;
@@ -153,22 +156,47 @@ Parse.Cloud.define("getRangeOfCommentsForPost", function(request, response){
                 response.error(error);
             }
         });
-    }
-
+    });
 });
 
 Parse.Cloud.define("postCommentAsUserOnPost", function(request, response){
-    //NOT TESTED
+    //TESTED
 
-    //Pre: commentText, user, time, post
+    //Pre: commentText, user, postObjectId
     //Post: true if comment was posted, false if post failed
     //Purpose: user posts comment on post (used in postDetail view)
 
-    Parse.Cloud.useMasterKey();
+    checkIfUserIsLoggedIn(request, response, function(request, response) {
+
+        var postObjectId = request.params.postObjectId;
+        var commentText = request.params.commentText;
+        var user = request.user;
+        var post = new Post();
+        post.id = postObjectId;
+
+        var comment = new Comments();
+
+        comment.save({
+            createUser : user,
+            comment : commentText,
+            Post : post
+        }, {
+            success: function(comment) {
+                response.success(comment);
+            },
+            error: function(comment, error) {
+                response.error(error);
+            }
+        });
+    });
 });
 
 Parse.Cloud.define("postCommentAsOrganizationOnPost", function(request, response){
     //NOT TESTED
+
+    checkIfUserIsLoggedIn(request, response, function(request, response) {
+
+    });
 
     //Pre: commentText, organization, time, post
     //Post: true if comment was posted, false if post failed
