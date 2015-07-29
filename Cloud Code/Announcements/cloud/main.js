@@ -21,14 +21,6 @@ var checkIfUserIsLoggedIn = function(request, response, code) {
     }
 };
 
-Parse.Cloud.define("hello", function(request, response) {
-  response.success("Hello world!");
-});
-
-Parse.Cloud.define("testWithParameters", function(request, response) {
-  response.success("Hello " + request.params.name + ". You are " + request.params.age + " years old!");
-});
-
 Parse.Cloud.define("isFieldValueInUse", function(request, response){
     //TESTED
 
@@ -191,28 +183,29 @@ Parse.Cloud.define("postCommentAsUserOnPost", function(request, response){
     });
 });
 
-Parse.Cloud.define("postCommentAsOrganizationOnPost", function(request, response){
-    //NOT TESTED
-
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
-
-    });
-
-    //Pre: commentText, organization, time, post
-    //Post: true if comment was posted, false if post failed
-    //Purpose: post comment on post (used in postDetail view)
-
-    Parse.Cloud.useMasterKey();
-});
-
-Parse.Cloud.define("getClubsFollowedByUser", function(request, response){
-    //NOT TESTED
+Parse.Cloud.define("getOrganizationsFollowedByUser", function(request, response){
+    //TESTED
 
     //Pre: user
     //Post: array of clubs that the user follows
     //Purpose: to display user's followed club list (used in userProfile view)
 
-    Parse.Cloud.useMasterKey();
+    checkIfUserIsLoggedIn(request, response, function(request, response) {
+
+        var user = request.user;
+
+        var query = new Parse.Query(FOLLOWERS);
+        query.equalTo('User', user);
+        query.include('Organization');
+        query.find({
+            success: function(results) {
+                response.success(results);
+            },
+            error: function(error) {
+                response.error(error);
+            }
+        });
+    });
 });
 
 //NEXT 3: make separate functions for updating club photo/cover/description, or keep generic?
