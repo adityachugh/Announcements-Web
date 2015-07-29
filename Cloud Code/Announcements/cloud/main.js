@@ -1,6 +1,5 @@
-
-// Use Parse.Cloud.define to define as many cloud functions as you want.
-// For example:
+var constants = require('cloud/constants');
+require('libs/parse');
 
 //Class name constants
 const USER = 'User';
@@ -10,8 +9,6 @@ const POST = 'Post';
 
 //Parse objects
 var Organization = Parse.Object.extend(ORGANIZATION);
-
-var moment = require('moment');
 
 Parse.Cloud.define("hello", function(request, response) {
   response.success("Hello world!");
@@ -27,8 +24,6 @@ Parse.Cloud.define("isFieldValueInUse", function(request, response){
     //Pre: className, key, value
     //Post: true if in use, false if not in use
     //Purpose: Returns if field value is currently in use (ex. username already being used)
-
-    Parse.Cloud.useMasterKey();
 
     //Parameters
     var className = request.params.className;
@@ -68,12 +63,9 @@ Parse.Cloud.define("getAllChildOrganizations", function(request, response){
 
     //ALSO used in Discover view - will show all 'clubs' based on selected school
 
-    Parse.Cloud.useMasterKey();
-
     //Create parentOrganization
     var parentOrganization = new Organization();
     parentOrganization.id = request.params.parentOrganizationObjectId;
-
     var query = new Parse.Query(ORGANIZATION);
     query.equalTo('Parent', parentOrganization);
     query.find({
@@ -94,7 +86,7 @@ Parse.Cloud.define("getRangeOfPostsForDay", function(request, response){
     //Post: array of posts for user
     //Purpose: get posts for a certain range & day (used in today view) (ex. get posts 0-9 for today)
 
-    Parse.Cloud.useMasterKey();
+    console.log(constants.ORGANIZATION);
 
     var date = request.params.date;
     var startIndex = request.params.startIndex;
@@ -122,6 +114,7 @@ Parse.Cloud.define("getRangeOfCommentsForPost", function(request, response){
     //Purpose: get comments for a certain range & post (loads latest first (see facebook commenting system)) (used in postDetail view) (ex. get comments 0-9 for an post)
 
     Parse.Cloud.useMasterKey();
+
 });
 
 Parse.Cloud.define("postCommentAsUserOnPost", function(request, response){
