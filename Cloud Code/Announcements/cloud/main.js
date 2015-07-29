@@ -1,14 +1,16 @@
 var constants = require('cloud/constants');
-require('libs/parse');
 
 //Class name constants
 const USER = 'User';
 const _USER = '_User';
 const ORGANIZATION = 'Organization';
 const POST = 'Post';
+const FOLLOWERS = 'Followers';
+const COMMENTS = 'Comments';
 
 //Parse objects
 var Organization = Parse.Object.extend(ORGANIZATION);
+var Post = Parse.Object.extend(POST);
 
 Parse.Cloud.define("hello", function(request, response) {
   response.success("Hello world!");
@@ -57,7 +59,7 @@ Parse.Cloud.define("getAllChildOrganizations", function(request, response){
 
     //TESTED
 
-    //Pre: parentOrganizationObjectId (will be null for top level organization)
+    //Pre: parentOrganizationObjectId
     //Post: array of childOrganizations
     //Purpose: get all child organizations (ex. get schools for a school board)
 
@@ -80,40 +82,78 @@ Parse.Cloud.define("getAllChildOrganizations", function(request, response){
 });
 
 Parse.Cloud.define("getRangeOfPostsForDay", function(request, response){
-    //TESTED
+    //TODO fix method & test
+    //NOT TESTED
 
     //Pre: startIndex, numberOfPosts, date
     //Post: array of posts for user
     //Purpose: get posts for a certain range & day (used in today view) (ex. get posts 0-9 for today)
 
-    console.log(constants.ORGANIZATION);
+    if (!request.user) { //Check if user is logged in
+        response.error("User not logged in!");
+    } else {
 
-    var date = request.params.date;
-    var startIndex = request.params.startIndex;
-    var numberOfPosts = request.params.numberOfPosts;
+        var followersQuery = new Parse.Query(FOLLOWERS);
+        followersQuery.equalTo('User', request.user);
+        //followersQuery.find({
+        //    success: function(results) {
+        //
+        //    },
+        //    error: function(error) {
+        //        response.error(error);
+        //    }
+        //});
 
-    var query = new Parse.Query(POST);
-    query.lessThan('postEndDate', date);
-    query.greaterThan('postStartDate', date);
-    query.skip(startIndex);
-    query.limit(numberOfPosts);
-    query.find({
-        success: function(results){
-            response.success(results);
-        }, error: function(error) {
-            response.error(error);
-        }
-    });
+        var date = request.params.date;
+        var startIndex = request.params.startIndex;
+        var numberOfPosts = request.params.numberOfPosts;
+
+        var query = new Parse.Query(POST);
+        query.lessThan('postEndDate', date);
+        query.greaterThan('postStartDate', date);
+        query.matchesKeyInQuery('Organization', 'Organization', followersQuery);
+        query.skip(startIndex);
+        query.limit(numberOfPosts);
+        query.find({
+            success: function (results) {
+                response.success(results);
+            }, error: function (error) {
+                response.error(error);
+            }
+        });
+    }
 });
 
 Parse.Cloud.define("getRangeOfCommentsForPost", function(request, response){
     //NOT TESTED
 
-    //Pre: startIndex, endIndex, post
+    //Pre: startIndex, numberOfPosts, postObjectId
     //Post: return array of comments for a post
     //Purpose: get comments for a certain range & post (loads latest first (see facebook commenting system)) (used in postDetail view) (ex. get comments 0-9 for an post)
 
-    Parse.Cloud.useMasterKey();
+    if (!request.user) {
+        response.error('User not logged in!');
+    } else {
+
+        var postObjectId = request.params.postObjectId;
+        var startIndex = request.params.startIndex;
+        var numberOfPosts = request.params.numberOfPosts;
+
+        var post = new Post();
+        post.id = postObjectId;
+
+        var query = new Parse.Query(COMMENTS);
+        query.equalTo('Post', post);
+        query.skip(startIndex);
+        query.limit(numberOfPosts);
+        query.find({
+            success: function (results) {
+                response.success(results);
+            }, error: function (error) {
+                response.error(error);
+            }
+        });
+    }
 
 });
 
