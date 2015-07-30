@@ -217,27 +217,68 @@ Parse.Cloud.define("updateUserProfilePhoto", function(request, response){
     //Post: true if photo was successfully saved, false if failed
     //Purpose: update the profile photo of the user
 
-    Parse.Cloud.useMasterKey();
+
+
 });
 
 Parse.Cloud.define("updateUserCoverPhoto", function(request, response){
     //NOT TESTED
 
-    //Pre: user, photo
+    //Pre: userObjectId, photo
     //Post: true if photo was successfully saved, false if failed
     //Purpose: update the cover photo of the user
 
-    Parse.Cloud.useMasterKey();
+    checkIfUserIsLoggedIn(request, response, function(request, response) {
+
+        var userObjectId = request.params.userObjectId;
+        if (userObjectId == request.user.id) {
+            var photo = request.params.photo;
+            request.user.save({
+                'coverPhoto' : photo
+            }, {
+                success: function(user) {
+                    response.success(user);
+                },
+                error: function(user, error) {
+                    response.error(error);
+                }
+            });
+
+        }
+    });
 });
 
 Parse.Cloud.define("updateUserDescription", function(request, response){
     //NOT TESTED
 
-    //Pre: user, description
+    //Pre: userObjectId, description
     //Post: true if description was successfully saved, false if failed
     //Purpose: update the description of the user
 
-    Parse.Cloud.useMasterKey();
+    checkIfUserIsLoggedIn(request, response, function(request, response) {
+
+        var userObjectId = request.params.userObjectId;
+        console.log(userObjectId);
+        console.log(request.user.id);
+        console.log(request.params.description);
+        if (userObjectId == request.user.id) {
+            var description = request.params.description;
+            request.user.save({
+                'description' : description
+            }, {
+                success: function(user) {
+                    response.success(user);
+                },
+                error : function(user, error) {
+                    response.error(error);
+                }
+            });
+
+        } else {
+            response.error('Another user cannot be edited!');
+        }
+    });
+
 });
 
 Parse.Cloud.define("getPostsOfOrganizationInRange", function(request, response){
