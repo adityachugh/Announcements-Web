@@ -13,6 +13,10 @@ var Organization = Parse.Object.extend(ORGANIZATION);
 var Post = Parse.Object.extend(POST);
 var Comments = Parse.Object.extend(COMMENTS);
 
+const STATUS_APPROVED = 'A';
+const STATUS_PENDING = 'P';
+const STATUS_REJECTED = 'R';
+
 var checkIfUserIsLoggedIn = function(request, response, code) {
     if (!request.user) {
         response.error("User not logged in!");
@@ -83,8 +87,8 @@ Parse.Cloud.define("getAllChildOrganizations", function(request, response){
 });
 
 Parse.Cloud.define("getRangeOfPostsForDay", function(request, response){
-    //TODO fix method & test
-    //NOT TESTED
+
+    //SEMI TESTED
 
     //Pre: startIndex, numberOfPosts, date
     //Post: array of posts for user
@@ -93,25 +97,25 @@ Parse.Cloud.define("getRangeOfPostsForDay", function(request, response){
     checkIfUserIsLoggedIn(request, response, function(request, response) {
         var followersQuery = new Parse.Query(FOLLOWERS);
         followersQuery.equalTo('User', request.user);
-        //followersQuery.find({
-        //    success: function(results) {
-        //
-        //    },
-        //    error: function(error) {
-        //        response.error(error);
-        //    }
-        //});
+        followersQuery.equalTo('status', STATUS_APPROVED);
+        followersQuery.include('Organization');
 
         var date = request.params.date;
         var startIndex = request.params.startIndex;
         var numberOfPosts = request.params.numberOfPosts;
 
         var query = new Parse.Query(POST);
-        query.lessThan('postEndDate', date);
-        query.greaterThan('postStartDate', date);
+        //TODO fix date
+        query.lessThanOrEqualTo('postEndDate', date);
+        query.greaterThanOrEqualTo('postStartDate', date);
         query.matchesKeyInQuery('Organization', 'Organization', followersQuery);
+        //TODO fix limit and skip
         query.skip(startIndex);
         query.limit(numberOfPosts);
+        query.descending('postStartDate');
+        query.descending('priority');
+        query.equalTo('status', STATUS_APPROVED);
+        query.include('Organization');
         query.find({
             success: function (results) {
                 response.success(results);
