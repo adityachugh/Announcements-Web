@@ -1025,7 +1025,7 @@ Parse.Cloud.define("createNewChildOrganization", function(request, response) {
     query.first({
         success: function(result) {
             if(result == null) {
-                response.error(error.code);
+                response.success(false);
             } else {
                 var name = request.params.organizationName;
                 var handle = request.params.organizationHandle;
