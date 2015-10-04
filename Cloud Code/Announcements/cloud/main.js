@@ -1024,12 +1024,16 @@ Parse.Cloud.define("createNewChildOrganization", function(request, response) {
 	childLevelConfig.id = request.params.childLevelConfigObjectId;
 
     var query = new Parse.Query(LEVEL_CONFIG);
-    query.equalTo('parent',parentLevelConfig);
+    query.equalTo('parent',levelConfig);
     query.first({
         success: function(result) {
+			var grandchildLevelConfig = new LevelConfig();
             if(result == null) {
                 response.success(false);
+				grandchildLevelConfig.id = null;
             } else {
+				grandchildLevelConfig.id = results[0].get("objectId")
+				}
                 var name = request.params.organizationName;
                 var handle = request.params.organizationHandle;
                 var type = request.params.organizationType;
@@ -1059,7 +1063,7 @@ Parse.Cloud.define("createNewChildOrganization", function(request, response) {
                         handle: handle,
                         createUser: request.user,
                         childCount: 0,
-                        childLevelConfig: childLevelConfig,
+                        childLevelConfig: grandchildLevelConfig,
                         parentLevelConfig: parentLevelConfig,
                         levelConfig: levelConfig,
                         config: config,
@@ -1096,7 +1100,6 @@ Parse.Cloud.define("createNewChildOrganization", function(request, response) {
                         }
                     });
 
-            }
         },
         error: function(error) {
             response.error(error.code);
