@@ -1019,6 +1019,9 @@ Parse.Cloud.define("createNewChildOrganization", function(request, response) {
 
     var admin = new Parse.User();
     admin.id = request.params.adminObjectId;
+	
+	var childLevelConfig = new LevelConfig();
+	childLevelConfig.id = request.params.childLevelConfigObjectId;
 
     var query = new Parse.Query(LEVEL_CONFIG);
     query.equalTo('parent',parentLevelConfig);
@@ -1056,7 +1059,7 @@ Parse.Cloud.define("createNewChildOrganization", function(request, response) {
                         handle: handle,
                         createUser: request.user,
                         childCount: 0,
-                        childLevelConfig: result,
+                        childLevelConfig: childLevelConfig,
                         parentLevelConfig: parentLevelConfig,
                         levelConfig: levelConfig,
                         config: config,
