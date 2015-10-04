@@ -1021,7 +1021,7 @@ Parse.Cloud.define("createNewChildOrganization", function(request, response) {
     admin.id = request.params.adminObjectId;
 
     var query = new Parse.Query(LEVEL_CONFIG);
-    query.equalTo('parent',levelConfig);
+    query.equalTo('parent',parentLevelConfigObjectId);
     query.first({
         success: function(result) {
             if(result == null) {
