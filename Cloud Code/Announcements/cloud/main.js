@@ -1032,7 +1032,7 @@ Parse.Cloud.define("createNewChildOrganization", function(request, response) {
                 response.success(false);
 				grandchildLevelConfig.id = null;
             } else {
-				grandchildLevelConfig.id = results[0].get("objectId")
+				grandchildLevelConfig.id = result.get("objectId")
 				}
                 var name = request.params.organizationName;
                 var handle = request.params.organizationHandle;
