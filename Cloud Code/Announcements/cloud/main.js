@@ -33,7 +33,7 @@ const TYPE_REJECTED = 'REJ';
 const ORGANIZATION_PUBLIC = 'PUB';
 const ORGANIZATION_PRIVATE = 'PRI';
 
-var checkIfUserIsLoggedIn = function(request, response, code) {
+var checkIfUserIsLoggedIn = function (request, response, code) {
     if (!request.user) {
         response.error('Please sign in again.');
     } else {
@@ -41,11 +41,11 @@ var checkIfUserIsLoggedIn = function(request, response, code) {
     }
 };
 
-var checkIfUserCanViewPost = function(request, response, code) {
+var checkIfUserCanViewPost = function (request, response, code) {
     var query = new Parse.Query(POST);
     query.include('organization');
     query.get(request.params.postObjectId, {
-        success: function(result) {
+        success: function (result) {
             if (result) {
                 var post = result;
                 var followerQuery = new Parse.Query(FOLLOWERS);
@@ -53,18 +53,18 @@ var checkIfUserCanViewPost = function(request, response, code) {
                 followerQuery.equalTo('organization', result.get('organization'));
                 followerQuery.notEqualTo('type', TYPE_NOT_FOLLOWER);
                 followerQuery.first({
-                    success: function(result) {
-                        if(result == null) {
+                    success: function (result) {
+                        if (result == null) {
                             response.error('You do not have rights to view this post!');
                         } else {
                             //if (!moment(new Date()).isBefore(post.get('startDate'))) {
-                                code(request, response);
+                            code(request, response);
                             //} else {
                             //    response.error('You are do not have rights to view this post!');
                             //}
                         }
                     },
-                    error: function(error) {
+                    error: function (error) {
                         response.error(error);
                     }
                 });
@@ -72,13 +72,13 @@ var checkIfUserCanViewPost = function(request, response, code) {
                 response.error(error);
             }
         },
-        error: function(error) {
+        error: function (error) {
             response.error(error);
         }
     });
 };
 
-var checkIfUserIsAdminOfOrganization = function(request, response, code) {
+var checkIfUserIsAdminOfOrganization = function (request, response, code) {
     var organization = new Organization();
     organization.id = request.params.organizationObjectId;
 
@@ -87,20 +87,20 @@ var checkIfUserIsAdminOfOrganization = function(request, response, code) {
     query.equalTo('type', TYPE_ADMIN);
     query.equalTo('user', request.user);
     query.first({
-        success: function(result) {
-            if(result == null) {
+        success: function (result) {
+            if (result == null) {
                 response.error('You are do not have admin rights for this organization!');
             } else { //Admin validation
                 code(request, response);
             }
         },
-        error: function(error) {
+        error: function (error) {
             response.error(error);
         }
     });
 };
 
-Parse.Cloud.define("isFieldValueInUse", function(request, response){
+Parse.Cloud.define("isFieldValueInUse", function (request, response) {
     //TESTED
 
     //Pre: className, key, value
@@ -121,7 +121,7 @@ Parse.Cloud.define("isFieldValueInUse", function(request, response){
     }
     query.equalTo(key, value);
     query.find({
-        success: function(results) {
+        success: function (results) {
 
             if (results.length < 1) { //Field value is not in use
                 response.success(false);
@@ -129,13 +129,13 @@ Parse.Cloud.define("isFieldValueInUse", function(request, response){
                 response.success(true)
             }
         },
-        error: function(error) {
+        error: function (error) {
             response.error(error);
         }
     });
 });
 
-Parse.Cloud.define("getAllChildOrganizations", function(request, response){
+Parse.Cloud.define("getAllChildOrganizations", function (request, response) {
 
     //TESTED
 
@@ -143,17 +143,17 @@ Parse.Cloud.define("getAllChildOrganizations", function(request, response){
     //Post: array of childOrganizations
     //Purpose: get all child organizations (ex. get schools for a school board)
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
         var parentOrganization = new Organization();
         parentOrganization.id = request.params.parentOrganizationObjectId;
         var query = new Parse.Query(ORGANIZATION);
         query.equalTo('parent', parentOrganization);
         query.find({
-            success: function(results) {
+            success: function (results) {
                 response.success(results);
             },
-            error: function(error) {
+            error: function (error) {
                 response.error(error);
             }
         });
@@ -162,7 +162,7 @@ Parse.Cloud.define("getAllChildOrganizations", function(request, response){
 
 });
 
-Parse.Cloud.define("isFollowingOrganization", function(request, response){
+Parse.Cloud.define("isFollowingOrganization", function (request, response) {
 
     //TESTED
 
@@ -170,7 +170,7 @@ Parse.Cloud.define("isFollowingOrganization", function(request, response){
     //Post: returns the status of the follow
     //Purpose: to find out if a user is following an organization
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
         var organization = new Organization();
         organization.id = request.params.organizationObjectId;
@@ -181,21 +181,21 @@ Parse.Cloud.define("isFollowingOrganization", function(request, response){
         query.equalTo('user', user);
         query.equalTo('organization', organization);
         query.first({
-            success: function(result) {
+            success: function (result) {
                 if (result == null) {
                     response.success(TYPE_NOT_FOLLOWER);
                 } else {
                     response.success(result.get('type'));
                 }
             },
-            error: function(error) {
+            error: function (error) {
                 response.error(error);
             }
         });
     });
 });
 
-Parse.Cloud.define("getAllTopLevelOrganizations", function(request, response){
+Parse.Cloud.define("getAllTopLevelOrganizations", function (request, response) {
 
     //TESTED
 
@@ -206,17 +206,17 @@ Parse.Cloud.define("getAllTopLevelOrganizations", function(request, response){
     var query = new Parse.Query(ORGANIZATION);
     query.doesNotExist('parent');
     query.find({
-        success: function(results) {
+        success: function (results) {
             response.success(results);
         },
-        error: function(error) {
+        error: function (error) {
             response.error(error);
         }
     });
 
 });
 
-Parse.Cloud.define("getRangeOfPostsForDay", function(request, response){
+Parse.Cloud.define("getRangeOfPostsForDay", function (request, response) {
 
     //TESTED
 
@@ -224,7 +224,7 @@ Parse.Cloud.define("getRangeOfPostsForDay", function(request, response){
     //Post: array of posts for user
     //Purpose: get posts for a certain range & day (used in today view) (ex. get posts 0-9 for today)
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
         var date = request.params.date;
         var startIndex = request.params.startIndex;
@@ -264,7 +264,7 @@ Parse.Cloud.define("getRangeOfPostsForDay", function(request, response){
     });
 });
 
-Parse.Cloud.define("getRangeOfCommentsForPost", function(request, response){
+Parse.Cloud.define("getRangeOfCommentsForPost", function (request, response) {
     //TESTED
 
     //Pre: startIndex, numberOfComments, postObjectId
@@ -273,81 +273,80 @@ Parse.Cloud.define("getRangeOfCommentsForPost", function(request, response){
 
     Parse.Cloud.useMasterKey();
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
 
+        var postObjectId = request.params.postObjectId;
+        var startIndex = request.params.startIndex;
+        var numberOfComments = request.params.numberOfComments;
 
-            var postObjectId = request.params.postObjectId;
-            var startIndex = request.params.startIndex;
-            var numberOfComments = request.params.numberOfComments;
+        var post = new Post();
+        post.id = postObjectId;
 
-            var post = new Post();
-            post.id = postObjectId;
-
-            var query = new Parse.Query(COMMENTS);
-            query.equalTo('post', post);
-            query.skip(startIndex);
-            query.limit(numberOfComments);
-            query.include('createUser');
-            query.notEqualTo('isDeleted', true);
-            query.descending('createdAt');
-            query.find({
-                success: function (results) {
-                    response.success(results);
-                }, error: function (error) {
-                    response.error(error);
-                }
-            });
-    });
-});
-
-Parse.Cloud.define("postCommentAsUserOnPost", function(request, response){
-    //TESTED
-
-    //Pre: commentText, postObjectId
-    //Post: true if comment was posted, false if post failed
-    //Purpose: user posts comment on post (used in postDetail view)
-
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
-
-            var postObjectId = request.params.postObjectId;
-            var commentText = request.params.commentText;
-            var user = request.user;
-
-        var postQuery = new Parse.Query(POST);
-        postQuery.get(postObjectId, {
-            success: function(post) {
-                var comment = new Comments();
-
-                comment.save({
-                    createUser : user,
-                    comment : commentText,
-                    post : post
-                }, {
-                    success: function(responseComment) {
-                        console.log(responseComment);
-                        response.success(responseComment);
-                    },
-                    error: function(comment, error) {
-                        response.error(error);
-                    }
-                });
-            },
-            error: function(comment, error) {
+        var query = new Parse.Query(COMMENTS);
+        query.equalTo('post', post);
+        query.skip(startIndex);
+        query.limit(numberOfComments);
+        query.include('createUser');
+        query.notEqualTo('isDeleted', true);
+        query.descending('createdAt');
+        query.find({
+            success: function (results) {
+                response.success(results);
+            }, error: function (error) {
                 response.error(error);
             }
         });
     });
 });
 
-Parse.Cloud.define("getOrganizationsForDiscoverTabInRange", function(request, response){
+Parse.Cloud.define("postCommentAsUserOnPost", function (request, response) {
+    //TESTED
+
+    //Pre: commentText, postObjectId
+    //Post: true if comment was posted, false if post failed
+    //Purpose: user posts comment on post (used in postDetail view)
+
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
+
+        var postObjectId = request.params.postObjectId;
+        var commentText = request.params.commentText;
+        var user = request.user;
+
+        var postQuery = new Parse.Query(POST);
+        postQuery.get(postObjectId, {
+            success: function (post) {
+                var comment = new Comments();
+
+                comment.save({
+                    createUser: user,
+                    comment: commentText,
+                    post: post
+                }, {
+                    success: function (responseComment) {
+                        console.log(responseComment);
+                        response.success(responseComment);
+                    },
+                    error: function (comment, error) {
+                        response.error(error);
+                    }
+                });
+            },
+            error: function (comment, error) {
+                response.error(error);
+            }
+        });
+    });
+});
+
+Parse.Cloud.define("getOrganizationsForDiscoverTabInRange", function (request, response) {
     //TESTED
 
     //Pre: userObjectId, startIndex, numberOfOrganizations
     //Post: array of children (latest first)
     //Purpose: to show array of posts (latest first) for use in clubProfileView
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
         var startIndex = request.params.startIndex;
         var numberOfOrganizations = request.params.numberOfOrganizations;
@@ -358,24 +357,24 @@ Parse.Cloud.define("getOrganizationsForDiscoverTabInRange", function(request, re
         query.skip(startIndex);
         query.limit(numberOfOrganizations);
         query.find({
-            success: function(results) {
+            success: function (results) {
                 response.success(results);
             },
-            error: function(error) {
+            error: function (error) {
                 response.error(error);
             }
         });
     });
 });
 
-Parse.Cloud.define("getOrganizationsFollowedByUserInRange", function(request, response){
+Parse.Cloud.define("getOrganizationsFollowedByUserInRange", function (request, response) {
     //TESTED
 
     //Pre: userObjectId, startIndex, numberOfOrganizations
     //Post: array of clubs that the user follows
     //Purpose: to display user's followed club list (used in userProfile view)
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
         var user = new Parse.User();
         user.id = request.params.userObjectId;
@@ -390,36 +389,36 @@ Parse.Cloud.define("getOrganizationsFollowedByUserInRange", function(request, re
         query.skip(startIndex);
         query.limit(numberOfOrganizations);
         query.find({
-            success: function(results) {
+            success: function (results) {
                 response.success(results);
             },
-            error: function(error) {
+            error: function (error) {
                 response.error(error.code);
             }
         });
     });
 });
 
-Parse.Cloud.define("updateUserProfilePhoto", function(request, response) {
+Parse.Cloud.define("updateUserProfilePhoto", function (request, response) {
     //TESTED
 
     //Pre: userObjectId, photo
     //Post: true if photo was successfully saved, false if failed
     //Purpose: update the profile photo of the user
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
         var userObjectId = request.params.userObjectId;
         if (userObjectId == request.user.id) {
             var photo = request.params.photo;
             var photoFile = new Parse.File(userObjectId, photo, 'image/png');
             request.user.save({
-                'profilePhoto' : photoFile
+                'profilePhoto': photoFile
             }, {
-                success: function(user) {
+                success: function (user) {
                     response.success(user);
                 },
-                error : function(error) {
+                error: function (error) {
                     response.error(error.code);
                 }
             });
@@ -429,28 +428,28 @@ Parse.Cloud.define("updateUserProfilePhoto", function(request, response) {
     });
 });
 
-Parse.Cloud.define("updateOrganizationProfilePhoto", function(request, response) {
+Parse.Cloud.define("updateOrganizationProfilePhoto", function (request, response) {
     //NOT TESTED
 
     //Pre: organizationObjectId, photo
     //Post: true if photo was successfully saved, false if failed
     //Purpose: update the profile photo of the user
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
-        checkIfUserIsAdminOfOrganization(request, response, function(request, response) {
+        checkIfUserIsAdminOfOrganization(request, response, function (request, response) {
             var organizationObjectId = request.params.organizationObjectId;
             var photo = request.params.photo;
             var photoFile = new Parse.File(organizationObjectId, photo, 'image/png');
             var organization = new Organization();
             organization.id = organizationObjectId;
             organization.save({
-                'image' : photoFile
+                'image': photoFile
             }, {
-                success: function(organization) {
+                success: function (organization) {
                     response.success(true);
                 },
-                error : function(error) {
+                error: function (error) {
                     response.error(error.code);
                 }
             });
@@ -458,28 +457,28 @@ Parse.Cloud.define("updateOrganizationProfilePhoto", function(request, response)
     });
 });
 
-Parse.Cloud.define("updateOrganizationCoverPhoto", function(request, response) {
+Parse.Cloud.define("updateOrganizationCoverPhoto", function (request, response) {
     //NOT TESTED
 
     //Pre: organizationObjectId, photo
     //Post: true if photo was successfully saved, false if failed
     //Purpose: update the profile photo of the user
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
-        checkIfUserIsAdminOfOrganization(request, response, function(request, response) {
+        checkIfUserIsAdminOfOrganization(request, response, function (request, response) {
             var organizationObjectId = request.params.organizationObjectId;
             var photo = request.params.photo;
             var photoFile = new Parse.File(organizationObjectId + '_cover', photo, 'image/png');
             var organization = new Organization();
             organization.id = organizationObjectId;
             organization.save({
-                'coverPhoto' : photoFile
+                'coverPhoto': photoFile
             }, {
-                success: function(organization) {
+                success: function (organization) {
                     response.success(true);
                 },
-                error : function(error) {
+                error: function (error) {
                     response.error(error.code);
                 }
             });
@@ -487,26 +486,26 @@ Parse.Cloud.define("updateOrganizationCoverPhoto", function(request, response) {
     });
 });
 
-Parse.Cloud.define("updateUserCoverPhoto", function(request, response){
+Parse.Cloud.define("updateUserCoverPhoto", function (request, response) {
     //TESTED
 
     //Pre: userObjectId, photo
     //Post: true if photo was successfully saved, false if failed
     //Purpose: update the cover photo of the user
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
         var userObjectId = request.params.userObjectId;
         if (userObjectId == request.user.id) {
             var photo = request.params.photo;
-            var photoFile = new Parse.File(userObjectId+'_cover', photo, 'image/png');
+            var photoFile = new Parse.File(userObjectId + '_cover', photo, 'image/png');
             request.user.save({
-                'coverPhoto' : photoFile
+                'coverPhoto': photoFile
             }, {
-                success: function(user) {
+                success: function (user) {
                     response.success(user);
                 },
-                error : function(error) {
+                error: function (error) {
                     response.error(error.code);
                 }
             });
@@ -516,25 +515,25 @@ Parse.Cloud.define("updateUserCoverPhoto", function(request, response){
     });
 });
 
-Parse.Cloud.define("updateUserDescription", function(request, response){
+Parse.Cloud.define("updateUserDescription", function (request, response) {
     //TESTED
 
     //Pre: userObjectId, description
     //Post: true if description was successfully saved, false if failed
     //Purpose: update the description of the user
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
         var userObjectId = request.params.userObjectId;
         if (userObjectId == request.user.id) {
             var description = request.params.description;
             request.user.save({
-                'userDescription' : description
+                'userDescription': description
             }, {
-                success: function(user) {
+                success: function (user) {
                     response.success(user);
                 },
-                error : function(error) {
+                error: function (error) {
                     response.error(error.code);
                 }
             });
@@ -545,14 +544,14 @@ Parse.Cloud.define("updateUserDescription", function(request, response){
 
 });
 
-Parse.Cloud.define("getPostsOfOrganizationInRange", function(request, response){
+Parse.Cloud.define("getPostsOfOrganizationInRange", function (request, response) {
     //TESTED
 
     //Pre: OrganizationObjectId, startIndex, numberOfPosts
     //Post: array of posts (latest first)
     //Purpose: to show array of posts (latest first) for use in clubProfileView
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
         var organizationObjectId = request.params.organizationObjectId;
         var startIndex = request.params.startIndex;
@@ -568,24 +567,24 @@ Parse.Cloud.define("getPostsOfOrganizationInRange", function(request, response){
         query.descending('postStartDate');
         query.equalTo('status', STATUS_APPROVED);
         query.find({
-            success: function(results) {
+            success: function (results) {
                 response.success(results);
             },
-            error: function(error) {
+            error: function (error) {
                 response.error(error.code);
             }
         });
     });
 });
 
-Parse.Cloud.define("getChildOrganizationsInRange", function(request, response){
+Parse.Cloud.define("getChildOrganizationsInRange", function (request, response) {
     //TESTED
 
     //Pre: parentOrganizationObjectId, startIndex, numberOfOrganizations
     //Post: array of children (latest first)
     //Purpose: to show array of posts (latest first) for use in clubProfileView
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
         var parentOrganization = new Organization();
         parentOrganization.id = request.params.parentOrganizationObjectId;
         var startIndex = request.params.startIndex;
@@ -596,17 +595,17 @@ Parse.Cloud.define("getChildOrganizationsInRange", function(request, response){
         query.skip(startIndex);
         query.limit(numberOfOrganizations);
         query.find({
-            success: function(results) {
+            success: function (results) {
                 response.success(results);
             },
-            error: function(error) {
+            error: function (error) {
                 response.error(error.code);
             }
         });
     });
 });
 
-Parse.Cloud.define("checkIfUserIsAdminOfOrganization", function(request, response){
+Parse.Cloud.define("checkIfUserIsAdminOfOrganization", function (request, response) {
     //TESTED
 
     //Pre: organizationObjectId, userObjectId
@@ -623,30 +622,30 @@ Parse.Cloud.define("checkIfUserIsAdminOfOrganization", function(request, respons
     query.equalTo('user', user);
     query.equalTo('organization', organization);
     query.first({
-        success: function(result) {
-            if(result == null) {
+        success: function (result) {
+            if (result == null) {
                 response.success(false);
             } else {
-                if(result.get('type') == TYPE_ADMIN) {
+                if (result.get('type') == TYPE_ADMIN) {
                     response.success(true);
                 } else {
                     response.success(false);
                 }
             }
         },
-        error: function(error) {
+        error: function (error) {
             response.error(error.code);
         }
     });
 });
 
-Parse.Cloud.define("updateFollowStateForUser", function(request, response){
+Parse.Cloud.define("updateFollowStateForUser", function (request, response) {
     //TESTED
 
     //Pre: isFollowing, organizationObjectId
     //Post: true if it was successful, false if not successful; isFollowing
     //Purpose: allow user to follow / unfollow organizations
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
         var isFollowing = request.params.isFollowing;
         if (isFollowing) {
@@ -672,10 +671,10 @@ Parse.Cloud.define("updateFollowStateForUser", function(request, response){
                                             user: request.user,
                                             organization: organization
                                         }, {
-                                            success: function(object) {
+                                            success: function (object) {
                                                 response.success(true);
                                             },
-                                            error: function(error) {
+                                            error: function (error) {
                                                 response.error(error.code);
                                             }
                                         });
@@ -684,10 +683,10 @@ Parse.Cloud.define("updateFollowStateForUser", function(request, response){
                                             type: TYPE_PENDING,
                                             followDate: new Date()
                                         }, {
-                                            success: function(object) {
+                                            success: function (object) {
                                                 response.success(true);
                                             },
-                                            error: function(error) {
+                                            error: function (error) {
                                                 response.error(error.code);
                                             }
                                         });
@@ -713,10 +712,10 @@ Parse.Cloud.define("updateFollowStateForUser", function(request, response){
                                         user: request.user,
                                         organization: organization
                                     }, {
-                                        success: function(object) {
+                                        success: function (object) {
                                             response.success(true);
                                         },
-                                        error: function(error) {
+                                        error: function (error) {
                                             response.error(error.code);
                                         }
                                     });
@@ -725,10 +724,10 @@ Parse.Cloud.define("updateFollowStateForUser", function(request, response){
                                         type: TYPE_FOLLOWER,
                                         followDate: new Date()
                                     }, {
-                                        success: function(object) {
+                                        success: function (object) {
                                             response.success(true);
                                         },
-                                        error: function(error) {
+                                        error: function (error) {
                                             response.error(error.code);
                                         }
                                     });
@@ -762,10 +761,10 @@ Parse.Cloud.define("updateFollowStateForUser", function(request, response){
                             type: TYPE_NOT_FOLLOWER,
                             followDate: new Date()
                         }, {
-                            success: function(object) {
+                            success: function (object) {
                                 response.success(true);
                             },
-                            error: function(error) {
+                            error: function (error) {
                                 response.error(error.code);
                             }
                         });
@@ -779,14 +778,14 @@ Parse.Cloud.define("updateFollowStateForUser", function(request, response){
     });
 });
 
-Parse.Cloud.define("getFollowersFollowRequestsAndAdminsForOrganizationInRange", function(request, response){
+Parse.Cloud.define("getFollowersFollowRequestsAndAdminsForOrganizationInRange", function (request, response) {
     //TESTED
 
     //Pre: organizationObjectId, startIndex, numberOfUsers, isAdmin
     //Post: array of followers
     //Purpose: get followers in a certain range for an organization
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
         var organization = new Organization();
         organization.id = request.params.organizationObjectId;
         var numberOfUsers = request.params.numberOfUsers;
@@ -834,14 +833,14 @@ Parse.Cloud.define("getFollowersFollowRequestsAndAdminsForOrganizationInRange", 
 
 });
 
-Parse.Cloud.define("getAdminsForOrganizationInRange", function(request, response){
+Parse.Cloud.define("getAdminsForOrganizationInRange", function (request, response) {
     //TESTED
 
     //Pre: organizationObjectId, startIndex, numberOfUsers
     //Post: array of admins
     //Purpose: get admins in a certain range for an organization
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
         var organization = new Organization();
         organization.id = request.params.organizationObjectId;
@@ -855,10 +854,10 @@ Parse.Cloud.define("getAdminsForOrganizationInRange", function(request, response
         query.limit(numberOfUsers);
         query.skip(startIndex);
         query.find({
-            success: function(results) {
+            success: function (results) {
                 response.success(results);
             },
-            error: function(error) {
+            error: function (error) {
                 response.error(error.code);
             }
         });
@@ -866,14 +865,14 @@ Parse.Cloud.define("getAdminsForOrganizationInRange", function(request, response
     });
 });
 
-Parse.Cloud.define("getOrganizationsThatUserIsAdminOf", function(request, response){
+Parse.Cloud.define("getOrganizationsThatUserIsAdminOf", function (request, response) {
     //TESTED
 
     //Pre: userObjectId
     //Post: array of organization
     //Purpose: get admins in a certain range for an organization
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
         var user = new Parse.User();
         user.id = request.params.userObjectId;
@@ -886,10 +885,10 @@ Parse.Cloud.define("getOrganizationsThatUserIsAdminOf", function(request, respon
         query.include('organization.levelConfig');
         query.include('organization.config');
         query.find({
-            success: function(results) {
+            success: function (results) {
                 response.success(results);
             },
-            error: function(error) {
+            error: function (error) {
                 response.error(error.code);
             }
         });
@@ -897,16 +896,16 @@ Parse.Cloud.define("getOrganizationsThatUserIsAdminOf", function(request, respon
     });
 });
 
-Parse.Cloud.define("addAdminToOrganization", function(request, response){
+Parse.Cloud.define("addAdminToOrganization", function (request, response) {
     //TESTED
 
     //Pre: organizationObjectId, selectedUserToBeAdminObjectId
     //Post: true if successfully added as admin, false if failed.
     //Purpose: to add new admins to an organization
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
-        checkIfUserIsAdminOfOrganization(request, response, function(request, response) {
+        checkIfUserIsAdminOfOrganization(request, response, function (request, response) {
             var organization = new Organization();
             organization.id = request.params.organizationObjectId;
             var user = new Parse.User();
@@ -915,7 +914,7 @@ Parse.Cloud.define("addAdminToOrganization", function(request, response){
             followerQuery.equalTo('organization', organization);
             followerQuery.equalTo('user', user);
             followerQuery.first({
-                success: function(result) {
+                success: function (result) {
                     if (result == null) {
                         var follower = new Followers();
                         follower.save({
@@ -925,10 +924,10 @@ Parse.Cloud.define("addAdminToOrganization", function(request, response){
                             approvalUser: request.user,
                             approvalDate: new Date()
                         }, {
-                            success: function(object) {
+                            success: function (object) {
                                 response.success(true);
                             },
-                            error: function(error) {
+                            error: function (error) {
                                 response.error(error.code);
                             }
                         });
@@ -938,16 +937,16 @@ Parse.Cloud.define("addAdminToOrganization", function(request, response){
                             approvalUser: request.user,
                             approvalDate: new Date()
                         }, {
-                            success: function(object) {
+                            success: function (object) {
                                 response.success(true);
                             },
-                            error: function(error) {
+                            error: function (error) {
                                 response.error(error.code);
                             }
                         });
                     }
                 },
-                error: function(error) {
+                error: function (error) {
                     response.error(error.code);
                 }
             });
@@ -956,16 +955,16 @@ Parse.Cloud.define("addAdminToOrganization", function(request, response){
 
 });
 
-Parse.Cloud.define("removeAdminFromOrganization", function(request, response){
+Parse.Cloud.define("removeAdminFromOrganization", function (request, response) {
     //TESTED
 
     //Pre: Organization, selectedAdminToRemoveObjectId
     //Post: true if successfully removed, false is failed.
     //Purpose: to remove admins from an organization
 
-    checkIfUserIsLoggedIn(request, response, function(request, response) {
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
 
-        checkIfUserIsAdminOfOrganization(request, response, function(request, response) {
+        checkIfUserIsAdminOfOrganization(request, response, function (request, response) {
             var organization = new Organization();
             organization.id = request.params.organizationObjectId;
             var user = new Parse.User();
@@ -974,23 +973,23 @@ Parse.Cloud.define("removeAdminFromOrganization", function(request, response){
             followerQuery.equalTo('organization', organization);
             followerQuery.equalTo('user', user);
             followerQuery.first({
-                success: function(result) {
+                success: function (result) {
                     if (result == null) {
                         response.success(true);
                     } else {
                         result.save({
                             type: TYPE_FOLLOWER
                         }, {
-                            success: function(object) {
+                            success: function (object) {
                                 response.success(true);
                             },
-                            error: function(error) {
+                            error: function (error) {
                                 response.error(error.code);
                             }
                         });
                     }
                 },
-                error: function(error) {
+                error: function (error) {
                     response.error(error.code);
                 }
             });
@@ -998,7 +997,7 @@ Parse.Cloud.define("removeAdminFromOrganization", function(request, response){
     });
 });
 
-Parse.Cloud.define("createNewChildOrganization", function(request, response) {
+Parse.Cloud.define("createNewChildOrganization", function (request, response) {
     //NOT TESTED
 
     //Pre: organizationObjectId, parentLevelConfigObjectId, levelConfigObjectId(childLevelConfig.ObjectId of the organization that is calling the function), configObjectId, organizationName, organizationHandle, organizationType, adminObjectId, approvalRequired, accessCode, profilePhoto, coverPhoto, description
@@ -1008,106 +1007,100 @@ Parse.Cloud.define("createNewChildOrganization", function(request, response) {
     var parent = new Organization();
     parent.id = request.params.organizationObjectId;
 
-    var levelConfig = new LevelConfig();
-    levelConfig.id = request.params.levelConfigObjectId;
-
-    var parentLevelConfig = new LevelConfig();
-    parentLevelConfig.id = request.params.parentLevelConfigObjectId;
+    var newOrgParentLevelConfig = new LevelConfig();
+    newOrgParentLevelConfig.id = request.params.newOrgParentLevelConfigObjectId;
 
     var config = new Config();
     config.id = request.params.configObjectId;
 
     var admin = new Parse.User();
     admin.id = request.params.adminObjectId;
-	
-	var childLevelConfig = new LevelConfig();
-	childLevelConfig.id = request.params.childLevelConfigObjectId;
+
+    var newOrgLevelConfig = new LevelConfig();
+    newOrgLevelConfig.id = request.params.newOrgLevelConfigObjectId;
 
     var query = new Parse.Query(LEVEL_CONFIG);
-    query.equalTo('parent',levelConfig);
+    query.equalTo('parent', newOrgLevelConfig);
     query.first({
-        success: function(result) {
-			var grandchildLevelConfig = new LevelConfig();
-            if(result == null) {
-                response.success(false);
-				grandchildLevelConfig.id = null;
-            } else {
-				grandchildLevelConfig.id = result.get("objectId")
-				}
-                var name = request.params.organizationName;
-                var handle = request.params.organizationHandle;
-                var type = request.params.organizationType;
-                var approvalRequired = request.params.approvalRequired;
-                var description = request.params.description;
-                var accessCode = request.params.accessCode;
-                var hasAccessCode = false;
-                if (accessCode) {
-                    hasAccessCode = true;
-                }
-                    var coverPhoto = request.params.coverPhoto;
-                    var coverPhotoFile = null;
-                    if (coverPhoto) {
-                        coverPhotoFile = new Parse.File('cover', coverPhoto, 'image/png');
-                    }
+        success: function (results) {
+            var childLevelConfig = new LevelConfig();
+            if (results != null) {
+                childLevelConfig.id = results[0].get("objectId");
+            }
+            var name = request.params.organizationName;
+            var handle = request.params.organizationHandle;
+            var type = request.params.organizationType;
+            var approvalRequired = request.params.approvalRequired;
+            var description = request.params.description;
+            var accessCode = request.params.accessCode;
+            var hasAccessCode = false;
+            if (accessCode != null){
+                hasAccessCode = true;
+            }
+            var coverPhoto = request.params.coverPhoto;
+            var coverPhotoFile = null;
+            if (coverPhoto) {
+                coverPhotoFile = new Parse.File('cover', coverPhoto, 'image/png');
+            }
 
-                    var profilePhoto = request.params.profilePhoto;
-                    var profilePhotoFile = null;
-                    if (profilePhoto) {
-                        profilePhotoFile = new Parse.File('profile', profilePhoto, 'image/png');
-                    }
+            var profilePhoto = request.params.profilePhoto;
+            var profilePhotoFile = null;
+            if (profilePhoto) {
+                profilePhotoFile = new Parse.File('profile', profilePhoto, 'image/png');
+            }
 
-                    var organization = new Organization();
-                    organization.save({
-                        name: name,
-                        isTopLevel: false,
-                        handle: handle,
-                        createUser: request.user,
-                        childCount: 0,
-                        childLevelConfig: grandchildLevelConfig,
-                        parentLevelConfig: parentLevelConfig,
-                        levelConfig: levelConfig,
-                        config: config,
-                        organizationType: type,
-                        parent: parent,
-                        parentApprovalRequired: approvalRequired,
-                        postCount: 0,
-                        followerCount: 0,
-                        hasAccessCode: hasAccessCode,
-                        accessCode: accessCode,
-                        image: profilePhotoFile,
-                        coverPhoto: coverPhotoFile,
-                        organizationDescription: description
+            var organization = new Organization();
+            organization.save({
+                name: name,
+                isTopLevel: false,
+                handle: handle,
+                createUser: request.user,
+                childCount: 0,
+                childLevelConfig: childLevelConfig ,
+                parentLevelConfig: newOrgParentLevelConfig,
+                levelConfig: newOrgLevelConfig,
+                config: config,
+                organizationType: type,
+                parent: parent,
+                parentApprovalRequired: approvalRequired,
+                postCount: 0,
+                followerCount: 1,
+                hasAccessCode: hasAccessCode,
+                accessCode: accessCode,
+                image: profilePhotoFile,
+                coverPhoto: coverPhotoFile,
+                organizationDescription: description
 
+            }, {
+                success: function (object) {
+                    var follower = new Followers();
+                    follower.save({
+                        user: admin,
+                        organization: object,
+                        type: TYPE_ADMIN,
+                        followDate: new Date()
                     }, {
-                        success: function(object) {
-                            var follower = new Followers();
-                            follower.save({
-                                user: admin,
-                                organization: object,
-                                type: TYPE_ADMIN,
-                                followDate: new Date()
-                            }, {
-                                success: function(object) {
-                                    response.success(true);
-                                },
-                                error: function(error) {
-                                    response.error(error.code);
-                                }
-                            });
+                        success: function (object) {
+                            response.success(true);
                         },
-                        error: function(error) {
+                        error: function (error) {
                             response.error(error.code);
                         }
                     });
+                },
+                error: function (error) {
+                    response.error(error.code);
+                }
+            });
 
         },
-        error: function(error) {
+        error: function (error) {
             response.error(error.code);
         }
     });
 });
 
-Parse.Cloud.define("updateOrganizationName", function(request, response) {
+Parse.Cloud.define("updateOrganizationName", function (request, response) {
     //NOT TESTED
 
     //Pre: organizationObjectId, name
@@ -1131,7 +1124,7 @@ Parse.Cloud.define("updateOrganizationName", function(request, response) {
     });
 });
 
-Parse.Cloud.define("updateOrganizationDescription", function(request, response) {
+Parse.Cloud.define("updateOrganizationDescription", function (request, response) {
     //NOT TESTED
 
     //Pre: organizationObjectId, description
@@ -1163,7 +1156,7 @@ Parse.Cloud.define("updateOrganizationDescription", function(request, response) 
 
 });
 
-Parse.Cloud.define("updateOrganizationAccessCode", function(request, response) {
+Parse.Cloud.define("updateOrganizationAccessCode", function (request, response) {
     //NOT TESTED
 
     //Pre: organizationObjectId, accessCode, description
@@ -1202,7 +1195,7 @@ Parse.Cloud.define("updateOrganizationAccessCode", function(request, response) {
 
 });
 
-Parse.Cloud.define("updateOrganizationFields", function(request, response) {
+Parse.Cloud.define("updateOrganizationFields", function (request, response) {
     //NOT TESTED
 
     //Pre: organizationObjectId, accessCode, description, name
@@ -1222,7 +1215,7 @@ Parse.Cloud.define("updateOrganizationFields", function(request, response) {
 
                     var hasAccessCode = true;
 
-                    var saveOrganization = function() {
+                    var saveOrganization = function () {
                         if (accessCode) {
                             organization.set('accessCode', accessCode);
                         }
@@ -1596,9 +1589,9 @@ Parse.Cloud.define("actOnApprovalRequest", function (request, response) {
                             if (status == STATUS_REJECTED) {
                                 alert = "Your post \"" + post.get('title') + "\" was rejected :(";
                             }
-                            notifyAdminsOfOrganization(post.get('organization').id, alert, function() {
+                            notifyAdminsOfOrganization(post.get('organization').id, alert, function () {
                                 response.success(true);
-                            }, function(error) {
+                            }, function (error) {
                                 response.error(error.code);
                             });
                         },
@@ -1736,14 +1729,14 @@ Parse.Cloud.define("uploadPostForOrganization", function (request, response) {
     });
 });
 
-Parse.Cloud.beforeSave(Parse.Installation, function(request, response) {
-    if(request.user) {
+Parse.Cloud.beforeSave(Parse.Installation, function (request, response) {
+    if (request.user) {
         request.object.set('user', request.user);
         response.success();
     }
 });
 
-Parse.Cloud.beforeSave(Parse.User, function(request, response) {
+Parse.Cloud.beforeSave(Parse.User, function (request, response) {
 
     var keywords = [];
     var username = request.object.get('username').toLowerCase();
@@ -1758,8 +1751,7 @@ Parse.Cloud.beforeSave(Parse.User, function(request, response) {
 });
 
 
-
-Parse.Cloud.beforeSave(POST, function(request, response) {
+Parse.Cloud.beforeSave(POST, function (request, response) {
     var result = splitText(request.object.get('body') + ' ' + request.object.get('title'));
 
     request.object.set('words', result.words);
@@ -1768,14 +1760,16 @@ Parse.Cloud.beforeSave(POST, function(request, response) {
     response.success();
 });
 
-Parse.Cloud.beforeSave(ORGANIZATION, function(request, response) {
+Parse.Cloud.beforeSave(ORGANIZATION, function (request, response) {
 
-    var code = function() {var result = splitText(request.object.get('handle') + ' ' + request.object.get('name'));
+    var code = function () {
+        var result = splitText(request.object.get('handle') + ' ' + request.object.get('name'));
         request.object.set('keywords', result.words);
-        response.success();};
+        response.success();
+    };
 
-    if(request.object.get('hasAccessCode')) {
-        if(request.object.get('accessCode') < 1000 || request.object.get('accessCode') > 9999) {
+    if (request.object.get('hasAccessCode')) {
+        if (request.object.get('accessCode') < 1000 || request.object.get('accessCode') > 9999) {
             response.error('Invalid access code!');
         } else {
             code();
@@ -1785,9 +1779,9 @@ Parse.Cloud.beforeSave(ORGANIZATION, function(request, response) {
     }
 });
 
-Parse.Cloud.beforeSave(FOLLOWERS, function(request, response) {
+Parse.Cloud.beforeSave(FOLLOWERS, function (request, response) {
 
-    if(!request.object.existed()) {
+    if (!request.object.existed()) {
         var organizationObjectId = request.object.get('organization').id;
         var searchQuery = new Parse.Query(ORGANIZATION);
         searchQuery.get(organizationObjectId, {
@@ -1907,7 +1901,7 @@ Parse.Cloud.define("followOrganizations", function (request, response) {
         var organizationObjectIds = request.params.organizationObjectIds;
         var follows = [];
 
-        if(organizationObjectIds != null) {
+        if (organizationObjectIds != null) {
             for (var i = 0; i < organizationObjectIds.length; i++) {
                 var follow = new Followers();
                 var organization = new Organization();
@@ -1970,13 +1964,13 @@ Parse.Cloud.define("getAllPostsForOrganizationForRange", function (request, resp
     });
 });
 
-var splitText = function(txt) {
+var splitText = function (txt) {
 
-    var stopWords = ["this" ,"that", "is", "the", "in", "and", "a", "of", "it", ".", "does", "am", "are", "to"];
+    var stopWords = ["this", "that", "is", "the", "in", "and", "a", "of", "it", ".", "does", "am", "are", "to"];
 
     var lowerCaseText = txt.toLowerCase();
 
-    var words = lowerCaseText.replace(/[#.]/g,'').split(' ');
+    var words = lowerCaseText.replace(/[#.]/g, '').split(' ');
 
     words = _.difference(words, stopWords);
 
@@ -1987,8 +1981,7 @@ var splitText = function(txt) {
 };
 
 
-
-var notifyAdminsOfOrganization = function(organizationObjectId, alert, successCode, errorCode) {
+var notifyAdminsOfOrganization = function (organizationObjectId, alert, successCode, errorCode) {
 
     var organization = new Organization();
     organization.id = organizationObjectId;
@@ -2007,16 +2000,16 @@ var notifyAdminsOfOrganization = function(organizationObjectId, alert, successCo
             "badge": "Increment"
         }
     }, {
-        success: function() {
+        success: function () {
             successCode();
         },
-        error: function(error) {
+        error: function (error) {
             errorCode(error);
         }
     });
 };
 
-Parse.Cloud.job("sendPushNotifications", function(request, status) {
+Parse.Cloud.job("sendPushNotifications", function (request, status) {
 
     Parse.Cloud.useMasterKey();
 
@@ -2034,9 +2027,9 @@ Parse.Cloud.job("sendPushNotifications", function(request, status) {
             if (!posts) {
 
             } else {
-                _.each(posts, function(post) {
+                _.each(posts, function (post) {
 
-                        var alertText = post.get('organization').get('name') + ": " + post.get('title');
+                    var alertText = post.get('organization').get('name') + ": " + post.get('title');
                     console.log(alertText);
 
                     var followersQuery = new Parse.Query(FOLLOWERS);
@@ -2060,24 +2053,24 @@ Parse.Cloud.job("sendPushNotifications", function(request, status) {
                             "badge": "Increment"
                         }
                     }, {
-                        success: function() {
+                        success: function () {
 
                         },
-                        error: function(error) {
+                        error: function (error) {
                             post.notifcationWasSent = false;
                             console.error('Failed to send notification for ' + post.id);
                         }
                     });
                 });
 
-                _.each(posts, function(post) {
+                _.each(posts, function (post) {
                     post.set('pushNotificationSent', post.notifcationWasSent);
                 });
                 Parse.Object.saveAll(posts, {
-                    success:function(posts) {
+                    success: function (posts) {
                         status.success('Finished sending push notifications for ' + counter + ' posts!');
                     },
-                    error:function() {
+                    error: function () {
                         status.error('Failed to save ' + counter + ' posts!');
                     }
                 });
