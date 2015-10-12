@@ -1024,7 +1024,7 @@ Parse.Cloud.define("createNewChildOrganization", function (request, response) {
     query.first({
         success: function (results) {
             var childLevelConfig = null;
-            if (results != null) {
+            if (results != null && results.size != 0) {
                 childLevelConfig = new LevelConfig();
                 childLevelConfig.id = results[0].get("objectId");
             }
