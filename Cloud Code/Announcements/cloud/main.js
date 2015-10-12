@@ -1422,8 +1422,17 @@ Parse.Cloud.define("getRequestedPendingPrivateOrganizationUsers", function (requ
 
         checkIfUserIsAdminOfOrganization(request, response, function (request, response) {
 
+            var organization = new Organization();
+            organization.id = request.params.organizationObjectId;
+            var numberOfUsers = request.params.numberOfUsers;
+            var startIndex = request.params.startIndex;
+
             var query = new Parse.Query(Followers);
+            query.equalTo('organization', organization);
             query.equalTo('type', TYPE_PENDING);
+            query.descending('updatedAt');
+            query.limit(numberOfUsers);
+            query.skip(startIndex);
             query.find({
                 success: function (results) {
                     response.success(results);
