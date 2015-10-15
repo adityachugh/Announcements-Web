@@ -1077,7 +1077,7 @@ Parse.Cloud.define("createNewChildOrganization", function (request, response) {
                         type: TYPE_ADMIN,
                         followDate: new Date()
                     }, {
-                        success: function (object) {
+                        success: function (follower) {
                             response.success(true);
                         },
                         error: function (error) {
