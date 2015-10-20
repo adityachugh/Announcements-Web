@@ -1132,7 +1132,7 @@ Parse.Cloud.define("createNewChildOrganization", function (request, response) {
                     newOrgAdmin.set("followDate", new Date());
 
                     newOrgAdmin.save(null, {
-                        success: function (follower) {
+                        success: function (newOrgAdmin) {
                             response.success(true);
                         },
                         error: function (error) {
