@@ -1126,12 +1126,12 @@ Parse.Cloud.define("createNewChildOrganization", function (request, response) {
             }, {
                 success: function (object) {
                     var follower = new Followers();
-                    follower.save({
-                        user: admin,
-                        organization: object,
-                        type: "ADM", //not sure why this would make a difference but I'm testing
-                        followDate: new Date()
-                    }, {
+                    follower.set("user", admin);
+                    follower.set("organization", object);
+                    follower.set("type", TYPE_ADMIN);
+                    follower.set("followDate", new Date());
+
+                    follower.save(null, {
                         success: function (follower) {
                             response.success(true);
                         },
