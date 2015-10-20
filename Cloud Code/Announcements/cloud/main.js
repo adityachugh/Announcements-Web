@@ -1419,12 +1419,12 @@ Parse.Cloud.define("privateOrganizationAccessCodeEntered", function (request, re
                         success: function (result) {
                             if (result == null) {
                                 var followers = new Followers();
-                                followers.save({
-                                    organization: organization,
-                                    user: request.user,
-                                    type: TYPE_PENDING,
-                                    followDate: new Date()
-                                }, {
+                                followers.set("organization", organization);
+                                followers.set("user", request.user);
+                                followers.set("type", TYPE_PENDING);
+                                followers.set("followDate", new Date());
+
+                                followers.save(null, {
                                     success: function (result) {
                                         response.success(true);
                                     },
