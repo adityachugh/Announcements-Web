@@ -100,6 +100,7 @@ var checkIfUserIsAdminOfOrganization = function (request, response, code) {
     });
 };
 
+//Deprecated, switch to new functions below
 Parse.Cloud.define("isFieldValueInUse", function (request, response) {
     //TESTED
 
@@ -131,6 +132,60 @@ Parse.Cloud.define("isFieldValueInUse", function (request, response) {
         },
         error: function (error) {
             response.error(error);
+        }
+    });
+});
+
+Parse.Cloud.define("isUsernameInUse", function (request, response) {
+    //TESTED
+
+    //Pre: username
+    //Post: true if in use, false if not in use
+    //Purpose: Returns if field value is currently in use (ex. username already being used)
+
+    //Parameters
+    var username = request.params.username;
+
+    //Setup query
+    var query = new Parse.Query(Parse.User);
+    query.equalTo("username", username);
+    query.find({
+        success: function (results) {
+            if (results.length > 0) {
+                response.success(true);
+            } else {
+                response.success(false);
+            }
+        },
+        error: function (error) {
+            response.error(error.code);
+        }
+    });
+});
+
+Parse.Cloud.define("isEmailInUse", function (request, response) {
+    //TESTED
+
+    //Pre: email
+    //Post: true if in use, false if not in use
+    //Purpose: Returns if field value is currently in use (ex. username already being used)
+
+    //Parameters
+    var email = request.params.email;
+
+    //Setup query
+    var query = new Parse.Query(Parse.User);
+    query.equalTo("email", email);
+    query.find({
+        success: function (results) {
+            if (results.length > 0) {
+                response.success(true);
+            } else {
+                response.success(false);
+            }
+        },
+        error: function (error) {
+            response.error(error.code);
         }
     });
 });
