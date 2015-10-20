@@ -232,7 +232,7 @@ Parse.Cloud.define("getRangeOfPostsForDay", function (request, response) {
 
         var followersQuery = new Parse.Query(FOLLOWERS);
         followersQuery.equalTo('user', request.user);
-        followersQuery.notEqualTo('type', TYPE_NOT_FOLLOWER);
+        followersQuery.notContainedIn('type', [TYPE_NOT_FOLLOWER, TYPE_PENDING, TYPE_REJECTED]);
 
         var organizationQuery = new Parse.Query(ORGANIZATION);
         organizationQuery.matchesKeyInQuery('parent', 'organization', followersQuery);
