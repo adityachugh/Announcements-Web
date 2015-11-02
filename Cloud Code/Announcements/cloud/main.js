@@ -727,7 +727,7 @@ Parse.Cloud.define("updateFollowStateForUser", function (request, response) {
                                             organization: organization
                                         }, {
                                             success: function (object) {
-                                                response.success(true);
+                                                response.success(TYPE_PENDING);
                                             },
                                             error: function (error) {
                                                 response.error(error.code);
@@ -739,7 +739,7 @@ Parse.Cloud.define("updateFollowStateForUser", function (request, response) {
                                             followDate: new Date()
                                         }, {
                                             success: function (object) {
-                                                response.success(true);
+                                                response.success(TYPE_PENDING);
                                             },
                                             error: function (error) {
                                                 response.error(error.code);
@@ -768,7 +768,7 @@ Parse.Cloud.define("updateFollowStateForUser", function (request, response) {
                                         organization: organization
                                     }, {
                                         success: function (object) {
-                                            response.success(true);
+                                            response.success(TYPE_FOLLOWER);
                                         },
                                         error: function (error) {
                                             response.error(error.code);
@@ -780,7 +780,7 @@ Parse.Cloud.define("updateFollowStateForUser", function (request, response) {
                                         followDate: new Date()
                                     }, {
                                         success: function (object) {
-                                            response.success(true);
+                                            response.success(TYPE_FOLLOWER);
                                         },
                                         error: function (error) {
                                             response.error(error.code);
@@ -810,14 +810,14 @@ Parse.Cloud.define("updateFollowStateForUser", function (request, response) {
             followerQuery.first({
                 success: function (result) {
                     if (result == null) {
-                        response.success(false);
+                        response.success(TYPE_NOT_FOLLOWER);
                     } else {
                         result.save({
                             type: TYPE_NOT_FOLLOWER,
                             followDate: new Date()
                         }, {
                             success: function (object) {
-                                response.success(true);
+                                response.success(TYPE_NOT_FOLLOWER);
                             },
                             error: function (error) {
                                 response.error(error.code);
@@ -1972,7 +1972,7 @@ Parse.Cloud.define("followOrganizations", function (request, response) {
                 follow.set('followDate', new Date());
                 follow.set('organization', organization);
 
-                if(organization.hasAccessCode){
+                if(organization.get('hasAccessCode')){
                     follow.set('type', TYPE_FOLLOWER);
                 } else {
                     follow.set('type', TYPE_PENDING);
