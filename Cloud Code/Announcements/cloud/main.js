@@ -1421,7 +1421,7 @@ Parse.Cloud.define("privateOrganizationAccessCodeEntered", function (request, re
                                 var followers = new Followers();
                                 followers.set("organization", organization);
                                 followers.set("user", request.user);
-                                followers.set("type", TYPE_PENDING);
+                                followers.set("type", TYPE_FOLLOWER);
                                 followers.set("followDate", new Date());
 
                                 followers.save(null, {
@@ -1434,7 +1434,7 @@ Parse.Cloud.define("privateOrganizationAccessCodeEntered", function (request, re
                                 });
                             } else {
                                 result.save({
-                                    type: TYPE_PENDING,
+                                    type: TYPE_FOLLOWER,
                                     followDate: new Date()
                                 }, {
                                     success: function (result) {
