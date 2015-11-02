@@ -1968,10 +1968,16 @@ Parse.Cloud.define("followOrganizations", function (request, response) {
                 var organization = new Organization();
                 organization.id = organizationObjectIds[i];
 
-                follow.set('organization', organization);
                 follow.set('user', request.user);
                 follow.set('followDate', new Date());
-                follow.set('type', TYPE_PENDING);
+                follow.set('organization', organization);
+
+                if(organization.hasAccessCode){
+                    follow.set('type', TYPE_FOLLOWER);
+                } else {
+                    follow.set('type', TYPE_PENDING);
+                }
+
 
                 follows.push(follow);
             }
