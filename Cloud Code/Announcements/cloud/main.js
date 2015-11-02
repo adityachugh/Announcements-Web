@@ -1758,7 +1758,7 @@ Parse.Cloud.define("uploadPostForOrganization", function (request, response) {
                             status: status,
                             createUser: request.user,
                             approvalRequired: approvalRequired,
-                            notifyFollowers: notifyFollowers,
+                            notifyFollowers: true,
                             postStartDate: startDate,
                             postEndDate: endDate,
                             isDeleted: false,
