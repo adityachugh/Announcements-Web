@@ -1052,6 +1052,48 @@ Parse.Cloud.define("removeAdminFromOrganization", function (request, response) {
     });
 });
 
+Parse.Cloud.define("removeFollowerFromOrganization", function (request, response) {
+    //TESTED
+
+    //Pre: Organization, selectedFollowerToRemoveObjectId
+    //Post: true if successfully removed, false is failed.
+    //Purpose: to remove followers from an organization
+
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
+
+        checkIfUserIsAdminOfOrganization(request, response, function (request, response) {
+            var organization = new Organization();
+            organization.id = request.params.organizationObjectId;
+            var user = new Parse.User();
+            user.id = request.params.selectedFollowerToRemoveObjectId;
+            var followerQuery = new Parse.Query(FOLLOWERS);
+            followerQuery.equalTo('organization', organization);
+            followerQuery.equalTo('user', user);
+            followerQuery.first({
+                success: function (result) {
+                    if (result == null) {
+                        response.success(true);
+                    } else {
+                        result.save({
+                            type: TYPE_NOT_FOLLOWER
+                        }, {
+                            success: function (object) {
+                                response.success(true);
+                            },
+                            error: function (error) {
+                                response.error(error.code);
+                            }
+                        });
+                    }
+                },
+                error: function (error) {
+                    response.error(error.code);
+                }
+            });
+        });
+    });
+});
+
 Parse.Cloud.define("createNewChildOrganization", function (request, response) {
     //NOT TESTED
 
