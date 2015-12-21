@@ -1292,7 +1292,7 @@ Parse.Cloud.define("updateOrganizationAccessCode", function (request, response) 
 Parse.Cloud.define("updateOrganizationFields", function (request, response) {
     //NOT TESTED
 
-    //Pre: organizationObjectId, accessCode, description, name
+    //Pre: organizationObjectId, description, name, hasAccessCode, accessCode, organizationType
     //Post: updated organization
     //Purpose: to update an organization's information
 
@@ -1306,22 +1306,16 @@ Parse.Cloud.define("updateOrganizationFields", function (request, response) {
                     var description = request.params.description;
                     var name = request.params.name;
                     var accessCode = request.params.accessCode;
+                    var hasAccessCode = request.params.hasAccessCode;
+                    var organizationType = request.params.organizationType;
 
-                    var hasAccessCode = true;
+                    organization.set('accessCode', accessCode);
+                    organization.set('hasAccessCode', hasAccessCode);
+                    organization.set('organizationDescription', description);
+                    organization.set('name', name);
+                    organization.set('organizationType', organizationType);
 
-                    var saveOrganization = function () {
-                        if (accessCode) {
-                            organization.set('accessCode', accessCode);
-                        }
-                        if (hasAccessCode) {
-                            organization.set('hasAccessCode', hasAccessCode);
-                        }
-                        if (description) {
-                            organization.set('organizationDescription', description);
-                        }
-                        if (name) {
-                            organization.set('name', name);
-                        }
+                    var save = function() {
                         organization.save({
                             success: function (org) {
                                 response.success(org);
@@ -1331,14 +1325,17 @@ Parse.Cloud.define("updateOrganizationFields", function (request, response) {
                             }
                         });
                     };
-
-                    if (accessCode == null) {
+                    if (organizationType == ORGANIZATION_PUBLIC) {
                         hasAccessCode = false;
-                        saveOrganization();
+                        accessCode = null;
+                        save();
+                    } else if (hasAccessCode == false) {
+                        accessCode = null;
+                        save();
                     } else if (accessCode < 1000 || accessCode > 9999) {
                         response.error('Invalid access code!');
                     } else {
-                        saveOrganization();
+                        save();
                     }
                 },
                 error: function (error) {
@@ -1349,6 +1346,17 @@ Parse.Cloud.define("updateOrganizationFields", function (request, response) {
 
     });
 
+});
+
+Parse.Cloud.beforeSave(ORGANIZATION, function (request, response) {
+
+    var object = request.object;
+
+    if (request.object.get('get')) {
+
+    } else {
+        response.success();
+    }
 });
 
 Parse.Cloud.define("changeOrganizationType", function (request, response) {
@@ -1884,7 +1892,7 @@ Parse.Cloud.beforeSave(ORGANIZATION, function (request, response) {
 
 Parse.Cloud.beforeSave(FOLLOWERS, function (request, response) {
 
-    if (!request.object.existed()) {
+    if (!request.object.existed() && request.object.get('type') == null) {
         var organizationObjectId = request.object.get('organization').id;
         var searchQuery = new Parse.Query(ORGANIZATION);
         searchQuery.get(organizationObjectId, {
@@ -2019,7 +2027,6 @@ Parse.Cloud.define("followOrganizations", function (request, response) {
                 } else {
                     follow.set('type', TYPE_PENDING);
                 }
-
 
                 follows.push(follow);
             }
