@@ -531,7 +531,7 @@ Parse.Cloud.define("updateOrganizationCoverPhoto", function (request, response) 
                 'coverPhoto': photoFile
             }, {
                 success: function (organization) {
-                    response.success(true);
+                    response.success(organization);
                 },
                 error: function (error) {
                     response.error(error.code);
@@ -906,6 +906,40 @@ Parse.Cloud.define("getAdminsForOrganizationInRange", function (request, respons
         query.equalTo('organization', organization);
         query.equalTo('type', TYPE_ADMIN);
         query.descending('updatedAt');
+        query.include('user');
+        query.limit(numberOfUsers);
+        query.skip(startIndex);
+        query.find({
+            success: function (results) {
+                response.success(results);
+            },
+            error: function (error) {
+                response.error(error.code);
+            }
+        });
+
+    });
+});
+
+Parse.Cloud.define("getFollowersForOrganizationInRange", function (request, response) {
+    //TESTED
+
+    //Pre: organizationObjectId, startIndex, numberOfUsers
+    //Post: array of admins
+    //Purpose: get admins in a certain range for an organization
+
+    checkIfUserIsLoggedIn(request, response, function (request, response) {
+
+        var organization = new Organization();
+        organization.id = request.params.organizationObjectId;
+        var numberOfUsers = request.params.numberOfUsers;
+        var startIndex = request.params.startIndex;
+
+        var query = new Parse.Query(FOLLOWERS);
+        query.equalTo('organization', organization);
+        query.equalTo('type', TYPE_FOLLOWER);
+        query.descending('updatedAt');
+        query.include('user');
         query.limit(numberOfUsers);
         query.skip(startIndex);
         query.find({
@@ -1346,17 +1380,6 @@ Parse.Cloud.define("updateOrganizationFields", function (request, response) {
 
     });
 
-});
-
-Parse.Cloud.beforeSave(ORGANIZATION, function (request, response) {
-
-    var object = request.object;
-
-    if (request.object.get('get')) {
-
-    } else {
-        response.success();
-    }
 });
 
 Parse.Cloud.define("changeOrganizationType", function (request, response) {
@@ -1874,6 +1897,9 @@ Parse.Cloud.beforeSave(POST, function (request, response) {
 Parse.Cloud.beforeSave(ORGANIZATION, function (request, response) {
 
     var code = function () {
+        if (request.object.get('hasAccessCode') == false) {
+            request.object.set('accessCode', 0);
+        }
         var result = splitText(request.object.get('handle') + ' ' + request.object.get('name'));
         request.object.set('keywords', result.words);
         response.success();
@@ -1889,6 +1915,17 @@ Parse.Cloud.beforeSave(ORGANIZATION, function (request, response) {
         code();
     }
 });
+
+//Parse.Cloud.beforeSave(ORGANIZATION, function (request, response) {
+//
+//    var object = request.object;
+//
+//    if (request.object.get('hasAccessCode') == false) {
+//        request.object.set('accessCode', 0);
+//    } else {
+//        response.success();
+//    }
+//});
 
 Parse.Cloud.beforeSave(FOLLOWERS, function (request, response) {
 
